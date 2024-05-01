@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html, body, canvas {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+}
+
+</style>
+</head>
+<body>
+<canvas id="cnv" width="600" height="600"></canvas>
+
+<p>Created by Jérémy Heleine for <a href="http://www.sitepoint.com/">SitePoint</a></p>
+
+<script>
+kk=10;
+ll=100;
+
+var N=3;
+var x  = new Array(N);
+
+var k0 =new Array(N);
+var k1 =new Array(N);
+var k2 =new Array(N);
+var k3 =new Array(N);
+
+var ww =new Array(N);
+var xx =new Array(N);
+
+var a=0.6;
+var f =  new Array(N);
+
+
+
+f[0]= function(t,x) {var ff= -x[1]-x[2];return ff}
+f[1]= function(t,x) {var ff=x[0]+0.34*x[1];return ff}
+f[2]= function(t,x) {var ff=0.4*x[0]-4.5*x[2]+x[0]*x[2];return ff}
+
+
+f[0]= function(t,x) {var ff= (x[2]-0.7)*x[0]-3.5*x[1];return ff}
+f[1]= function(t,x) {var ff=3.5*x[0]+(x[2]-0.7)*x[1];return ff}
+f[2]= function(t,x) {var ff=a+x[2]-x[2]*x[2]*x[2]/3-(x[0]*x[0]+x[1]*x[1])*(1+0.25*x[2]);return ff}
+
+
+var fz=function(t){return Math.cos(t);}
+
+ var Vertex = function(x, y, z) {
+    this.x = parseFloat(x);
+    this.y = parseFloat(y);
+    this.z = parseFloat(z);
+};
+
+var Vertex2D = function(x, y) {
+    this.x = parseFloat(x);
+    this.y = parseFloat(y);
+};
+
+var Cube = function(center, side) {
+
+var dt=0.12;
+var tmax=100;
+
+x[0]=1;
+x[1]=1;
+x[2]=1;
+
+var lll=[];
+
+for (t=0;t<tmax;t+=dt){
+
+lll.push([x[0],x[1],x[2]]);
+for(i=0;i<N;i++){ww[i]=x[i]}
+for(i=0;i<N;i++){k0[i]=dt*f[i](t,ww)}
+
+for(i=0;i<N;i++){ww[i]=x[i]+k0[i]/2}
+for(i=0;i<N;i++){k1[i]=dt*f[i](t+dt/2,ww)}
+
+for(i=0;i<N;i++){ww[i]=x[i]+k1[i]/2}
+for(i=0;i<N;i++){k2[i]=dt*f[i](t+dt/2,ww)}
+
+for(i=0;i<N;i++){ww[i]=x[i]+k2[i]}
+for(i=0;i<N;i++){k3[i]=dt*f[i](t+dt,ww)}
+
+for(i=0;i<N;i++){x[i]=x[i]+(k0[i]+k1[i]*2+k2[i]*2+k3[i])/6}
+
+}
+	
+ll=lll.length;	
+document.write(ll);
+
+
+    var d = side / 5;
+	this.vertices=[];
+	for(i=0;i<ll;i++){
+
+	this.vertices.push(new Vertex(center.x+d*lll[i][0],center.y+d*lll[i][1],center.z+d*lll[i][2]))}
+
+	this.face=[];
+	for(i=0;i<ll;i++){this.face.push(this.vertices[i])}
+
+	this.faces=[ this.face];
+};
+
+function project(M) {
+    return new Vertex2D(M.x, M.z);
+}
+
+function render(objects, ctx, dx, dy) {
+
+    ctx.clearRect(0, 0, 2*dx, 2*dy);
+	
+kk=kk+1;
+if (kk>=ll){kk=10}	
+
+    for (var i = 0, n_obj = objects.length; i < n_obj; ++i) {
+
+        for (var j = 0, n_faces = objects[i].faces.length; j < n_faces; ++j) {
+
+            var face = objects[i].faces[j];
+
+            var P = project(face[0]);
+			ctx.lineWidth=2;
+            ctx.beginPath();
+            ctx.moveTo(P.x + dx, -P.y + dy);
+
+            for (var k = 1, n_vertices = kk; k < n_vertices; ++k) {
+                P = project(face[k]);
+                ctx.lineTo(P.x + dx, -P.y + dy);
+            }
+
+            ctx.closePath();
+            ctx.stroke();
+
+        }
+    }
+}
+
+(function() {
+
+    var canvas = document.getElementById('cnv');
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    var dx = canvas.width / 2;
+    var dy = canvas.height / 2;
+
+
+    var ctx = canvas.getContext('2d');
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.fillStyle = 'rgba(0, 150, 255, 0.3)';
+
+
+    var cube_center = new Vertex(0, 0, 10);
+
+
+//////////////////////////////////////////////////////////
+    var cube = new Cube(cube_center, dy*3);
+    var objects = [cube];
+
+
+    render(objects, ctx, dx, dy);
+
+
+    var mousedown = false;
+    var mx = 0;
+    var my = 0;
+
+    canvas.addEventListener('mousedown', initMove);
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', stopMove);
+
+
+    function rotate(M, center, theta, phi) {
+
+        var ct = Math.cos(theta);
+        var st = Math.sin(theta);
+        var cp = Math.cos(phi);
+        var sp = Math.sin(phi);
+
+
+        var x = M.x - center.x;
+        var y = M.y - center.y;
+        var z = M.z - center.z;
+
+        M.x = ct * x - st * cp * y + st * sp * z + center.x;
+        M.y = st * x + ct * cp * y - ct * sp * z + center.y;
+        M.z = sp * y + cp * z + center.z;
+    }
+
+    function initMove(evt) {
+        clearTimeout(autorotate_timeout);
+        mousedown = true;
+        mx = evt.clientX;
+        my = evt.clientY;
+    }
+
+    function move(evt) {
+        if (mousedown) {
+            var theta = (evt.clientX - mx) * Math.PI / 360;
+            var phi = (evt.clientY - my) * Math.PI / 180;
+            for (var i = 0; i < ll; ++i)
+                rotate(cube.vertices[i], cube_center, theta, phi);
+            mx = evt.clientX;
+            my = evt.clientY;
+            render(objects, ctx, dx, dy);
+        }
+    }
+
+    function stopMove() {
+        mousedown = false;
+        autorotate_timeout = setTimeout(autorotate, 2000);
+    }
+
+    function autorotate() {
+        for (var i = 0; i < ll; ++i)
+            rotate(cube.vertices[i], cube_center, -Math.PI / 720, Math.PI / 720);
+        render(objects, ctx, dx, dy);
+        autorotate_timeout = setTimeout(autorotate, 30);
+    }
+    autorotate_timeout = setTimeout(autorotate, 2000);
+})();
+</script>
+</body>
+</html>
