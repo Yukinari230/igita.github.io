@@ -1,0 +1,71 @@
+<html>
+<head>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+<div id="tester"> </div>
+<script>
+
+document.write("２０２４　4/18 794.65 23784.5 1962.2  23741 1962 4/６ ７１１．０９　２３７２８.<br><br><br>")
+
+    den = 23784.5 - 23752.1 + 794.65 - 749.
+
+aa=24316.6-24152.1
+bb=1649.63-2426.2
+den=aa+bb
+gas=1970.2-1967
+
+document.write("　使用量　電気",den,"　　瓦斯     ",gas,"  <br> ")
+
+rden=den/1014*24405
+rgas=gas/54*12371
+document.write("料金" ,rden," 電気 ------  ",rgas," ガス料金  　<br><br><br>　　２月　　２２９９４（９３４）　１１４７４（４８）　<br> ")
+
+dden=Math.floor(den/50.)
+dgas=Math.floor(gas/3.5)
+document.write(" 日にち   ",dden," 日  -------   ", dgas,"日    <br>")
+document.write("2024 4  687  17200  385+223 <br>")
+document.write("     3  850  21000  478+275 <bR>  23 6320<br>")
+
+TESTER = document.getElementById('tester');
+
+aa=24152.1
+bb=749
+aaa=24343.6
+bbb=1667.19
+	
+var trace1 = { x: ['a', 'b'],
+  y: [0,0],
+  name: 'Zoo',  type: 'bar'};
+	
+aa=aaa
+bb=bbb
+aaa=24365
+bbb=1671.21
+	
+var trace2 = {  x: ['a', 'b'],
+  y: [aaa-aa,bbb-bb],
+    name: 'Zo',  type: 'bar'};
+
+aa=aaa
+bb=bbb
+aaa=24373.4
+bbb=1684.29
+
+var trace3 ={x: ['a','b'],
+	y:[aaa-aa,bbb-bb],
+	name: 'zx',	type: 'bar'};
+
+var trace4={x: ['a','b'],
+y:[19,21],
+name:'zzz',type:'bar'};
+
+var data = [trace1, trace2,trace3,trace4];
+var layout = {barmode: 'group'};
+
+Plotly.newPlot('tester', data, layout);
+
+</script>
+
+</body>
+</html>
